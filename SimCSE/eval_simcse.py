@@ -1,23 +1,30 @@
+import torch.cuda
+
 from SimCSEModel import *
+from text2vec.similarity import cos_sim
+from text2vec.text_matching_dataset import load_test_data
+from text2vec.utils.stats_util import compute_spearmanr
 
-model_path = '../pretrained_model/bert-base-chinese'
-
-# 微调后参数存放位置
-SAVE_PATH = 'saved_model/'
-
-# 数据位置
-# SNIL_TRAIN = './dataset/cnsd-snli/train.txt'
-STS_TRAIN_LARGE = '../dataset/STS-B/sts-train.txt'
-STS_TRAIN_BASE = '../dataset/STS-B/sts-train-base.txt'
+# 基本参数
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model_path = '../pretrained_model/bert-base-chinese'  # 预训练模型目录
+POOLING = 'cls'  # choose in ['cls', 'pooler', 'last-avg', 'first-last-avg']
+SAVE_PATH = 'saved_model/'  # 微调后参数存放位置
+EPOCHS = 1
+BATCH_SIZE = 64
+LR = 2e-5
+MAXLEN = 64
+STS_TRAIN = '../dataset/STS-B/sts-train.txt'
 STS_DEV = '../dataset/STS-B/sts-val.txt'
 STS_TEST = '../dataset/STS-B/sts-test.txt'
 
 if __name__ == '__main__':
+
     logger.info(f'device: {DEVICE}, pooling: {POOLING}, model path: {model_path}')
     tokenizer = BertTokenizer.from_pretrained(model_path)
 
     # load data
-    train_data = load_data('sts', STS_TRAIN_BASE)
+    train_data = load_data('sts', STS_TRAIN)
     random.shuffle(train_data)
     dev_data = load_data('sts', STS_DEV)
     test_data = load_data('sts', STS_TEST)
@@ -51,8 +58,6 @@ if __name__ == '__main__':
         trgs.append(trg)
         labels.append(label)
     logger.debug(f'{test_data[0]}')
-    # sentence_embeddings = model.encode(srcs)
-    # logger.debug(f"{type(sentence_embeddings)}, {sentence_embeddings.shape}, {sentence_embeddings[0].shape}")
 
     t1 = time.time()
     e1 = model.encode(srcs)

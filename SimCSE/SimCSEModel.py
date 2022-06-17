@@ -15,37 +15,7 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 from tqdm.autonotebook import trange
 from transformers import BertConfig, BertModel, BertTokenizer, PreTrainedTokenizer
-
-# 基本参数
-from text2vec.similarity import cos_sim
-from text2vec.text_matching_dataset import load_test_data
-from text2vec.utils.stats_util import compute_spearmanr
-
-EPOCHS = 1
-BATCH_SIZE = 64
-LR = 1e-5
-MAXLEN = 64
-POOLING = 'cls'  # choose in ['cls', 'pooler', 'last-avg', 'first-last-avg']
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-# # 预训练模型目录
-# BERT = 'pretrained_model/bert_pytorch'
-# BERT_WWM_EXT = 'pretrained_model/bert_wwm_ext_pytorch'
-# ROBERTA = 'pretrained_model/roberta_wwm_ext_pytorch'
-# model_path = BERT
-#
-# model_path = '../pretrained_model/bert-base-chinese'
-#
-# # 微调后参数存放位置
-SAVE_PATH = 'saved_model/'
-#
-# # 数据位置
-# # SNIL_TRAIN = './dataset/cnsd-snli/train.txt'
-# STS_TRAIN_LARGE = '../dataset/STS-B/sts-train.txt'
-# STS_TRAIN_BASE = '../dataset/STS-B/sts-train-base.txt'
-# STS_DEV = '../dataset/STS-B/sts-val.txt'
-# STS_TEST = '../dataset/STS-B/sts-test.txt'
-
+from eval_simcse import DEVICE, model_path, POOLING, SAVE_PATH, EPOCHS, BATCH_SIZE, LR, MAXLEN, STS_TRAIN, STS_DEV, STS_TEST
 
 def load_data(name: str, path: str) -> List:
     """根据名字加载不同的数据集
@@ -258,6 +228,7 @@ def train(model, train_dl, dev_dl, optimizer) -> None:
     """
     model.train()
     global best
+    best = 0
     early_stop_batch = 0
     for batch_idx, source in enumerate(tqdm(train_dl), start=1):
         # 维度转换 [batch, 3, seq_len] -> [batch * 3, sql_len]
@@ -291,4 +262,4 @@ def train(model, train_dl, dev_dl, optimizer) -> None:
                 logger.info(f"corrcoef doesn't improve for {early_stop_batch} batch, early stop!")
                 logger.info(f"train use sample number: {(batch_idx - 10) * BATCH_SIZE}")
                 return
-        model.save_model(SAVE_PATH, results=results)
+        # model.save_model(SAVE_PATH, results=results)

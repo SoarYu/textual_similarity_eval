@@ -341,11 +341,7 @@ class BertMatchModel:
                 data = np.dot(p, range(len(p)))
                 preds.append(data)
             batch_preds.extend(preds)
-            # batch_preds.extend(probs.cpu().numpy())
-        # print('batch_labels_type', type(batch_labels[0]))
-        # print('batch_labels', len(batch_labels), batch_labels)
-        # print('batch_preds_type', type(batch_preds[0]))
-        # print('batch_preds', len(batch_preds), batch_preds)
+
         spearman = compute_spearmanr(batch_labels, batch_preds)
         pearson = compute_pearsonr(batch_labels, batch_preds)
         logger.debug(f"labels: {batch_labels[:10]}")
@@ -417,36 +413,3 @@ class BertMatchModel:
                 for key in sorted(results.keys()):
                     writer.write("{} = {}\n".format(key, str(results[key])))
 
-    # def encode(self, sentences: Union[str, List[str]], batch_size: int = 32, show_progress_bar: bool = False):
-    #     """
-    #     Returns the embeddings for a batch of sentences.
-    #     """
-    #     self.bert.eval()
-    #     input_is_string = False
-    #     if isinstance(sentences, str) or not hasattr(sentences, "__len__"):
-    #         sentences = [sentences]
-    #         input_is_string = True
-    #
-    #     all_embeddings = []
-    #     length_sorted_idx = np.argsort([-len(s) for s in sentences])
-    #     sentences_sorted = [sentences[idx] for idx in length_sorted_idx]
-    #     for start_index in trange(0, len(sentences), batch_size, desc="Batches", disable=not show_progress_bar):
-    #         sentences_batch = sentences_sorted[start_index: start_index + batch_size]
-    #         # Tokenize sentences
-    #         inputs = self.tokenizer(sentences_batch, max_length=self.max_seq_length, truncation=True,
-    #                                 padding='max_length', return_tensors='pt')
-    #         input_ids = inputs.get('input_ids').squeeze(1).to(device)
-    #         attention_mask = inputs.get('attention_mask').squeeze(1).to(device)
-    #         token_type_ids = inputs.get('token_type_ids').squeeze(1).to(device)
-    #
-    #         # Compute sentences embeddings
-    #         with torch.no_grad():
-    #             embeddings = self.get_sentence_embeddings(input_ids, attention_mask, token_type_ids)
-    #         embeddings = embeddings.detach().cpu()
-    #         all_embeddings.extend(embeddings)
-    #     all_embeddings = [all_embeddings[idx] for idx in np.argsort(length_sorted_idx)]
-    #     all_embeddings = np.asarray([emb.numpy() for emb in all_embeddings])
-    #     if input_is_string:
-    #         all_embeddings = all_embeddings[0]
-    #
-    #     return all_embeddings

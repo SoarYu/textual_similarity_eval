@@ -17,29 +17,12 @@ from text2vec.text_matching_dataset import load_test_data
 
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser('Text Matching task')
-    # parser.add_argument('--model_arch', default='cosent', const='cosent', nargs='?',
-    #                     choices=['cosent', 'sentencebert', 'bert'], help='model architecture')
-    # parser.add_argument('--task_name', default='STS-B', const='STS-B', nargs='?',
-    #                     choices=['ATEC', 'STS-B', 'BQ', 'LCQMC', 'PAWSX'], help='task name of dataset')
-    # parser.add_argument('--model_name', default='hfl/chinese-macbert-base', type=str,
-    #                     help='Transformers model model or path')
-    # parser.add_argument("--do_train", action="store_true", help="Whether to run training.")
-    # parser.add_argument("--do_predict", action="store_true", help="Whether to run predict.")
-    # parser.add_argument('--output_dir', default='./outputs', type=str, help='Model output directory')
-    # parser.add_argument('--max_seq_length', default=64, type=int, help='Max sequence length')
-    # parser.add_argument('--num_epochs', default=10, type=int, help='Number of training epochs')
-    # parser.add_argument('--batch_size', default=128, type=int, help='Batch size')
-    # parser.add_argument('--learning_rate', default=2e-5, type=float, help='Learning rate')
-    # parser.add_argument('--encoder_type', default='FIRST_LAST_AVG', type=lambda t: EncoderType[t],
-    #                     choices=list(EncoderType), help='Encoder type, string name of EncoderType')
     args = parser.parse_args()
-
-    args.model_name = '../pretrained_model/bert-base-chinese/'
-    args.encoder_type = EncoderType['CLS']
-    args.max_seq_length = 64
-    args.output_dir = 'saved_model/'
+    args.model_name = '../pretrained_model/bert-base-chinese/'  #预训练模型
+    args.encoder_type = EncoderType['CLS']                      #pooling选择
+    args.max_seq_length = 64                                    #文本最大分割长度
+    args.output_dir = 'saved_model/'                            #训练模型保存目录
     args.num_epochs = 1
     args.batch_size = 64
     args.learning_rate = 2e-5
@@ -100,13 +83,3 @@ if __name__ == '__main__':
     logger.debug(
         f'spend time: {spend_time:.4f}, count:{len(srcs + trgs)}, qps: {len(srcs + trgs) / spend_time}')
     logger.debug(f'spearman: {spearman}')
-
-
-    # file_path = f'outputs/txt/15/{args.model_arch}_{args.encoder_type}_{args.task_name}_{args.num_epochs}.txt'
-    # with open(file_path, 'a', encoding='utf-8') as file:
-    #     file.write(f'{args.model_name}\tspearman: {spearman:.4f}\t\n')
-    # return spearman
-
-#
-# if __name__ == '__main__':
-#     main()
